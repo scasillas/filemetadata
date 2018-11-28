@@ -1,23 +1,32 @@
-'use strict';
-
-var express = require('express');
-var cors = require('cors');
-
-// require and use "multer"...
-
-var app = express();
-
-app.use(cors());
-app.use('/public', express.static(process.cwd() + '/public'));
-
-app.get('/', function (req, res) {
-     res.sendFile(process.cwd() + '/views/index.html');
-  });
-
-app.get('/hello', function(req, res){
-  res.json({greetings: "Hello, API"});
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const upload = require('multer')({
+    dest: '/tmp/uploads'
 });
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log('Node.js listening ...');
+const app = express();
+app.enable('trust proxy');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.get('/', (req, res) => {
+    res.render('index', {
+        title: 'File Metadata Microservice',
+        url: `${req.protocol}://${req.headers.host}`
+    });
+});
+
+app.post('/', upload.single('file'), (req, res) => {
+    res.json({
+        size: req.file.size
+    });
+    fs.unlink(req.file.path, (err) => {
+        if (err) throw err;
+    });
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+var listener = app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server listening on ${listener.address().port}`);
 });

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    div(class='container')
+        h1(class='header')=title
+        blockquote
+            p User Stories:
+            ol
+                li I can submit a FormData object that includes a file upload.
+                li When I submit something, I will receive the file size in bytes within the JSON response
+
+        form(method='POST' enctype='multipart/form-data')
+            label(class='control-label') Submit a file to view its filesize
+            input(name="file" id="file" type="file" class="file" data-show-preview="false")
